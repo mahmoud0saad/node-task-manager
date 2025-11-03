@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int            @id @default(autoincrement())
+  isTeacher      Boolean        @default(false)
+  phone          String         @unique
+  name           String
+  password       String
+  createAt       DateTime       @default(now())
+  project        project[]
+  memberProjects projectUsers[] @relation("MemberInProject") // 👈 بدل projectUsers
+  addedProjects  projectUsers[] @relation("UserAddedInProject") // 👈 بدل projectUsersb
+  task           task[]
+  comment        comment[]
+  taskUsers      taskUsers[]
+}
+
+model project {
+  id           Int            @id @default(autoincrement())
+  title        String
+  description  String
+  attribute    String?
+  ownerId      Int?
+  owner        User?          @relation(fields: [ownerId], references: [id], onUpdate: Cascade, onDelete: SetNull)
+  projectUsers projectUsers[]
+  task         task[]
+}
+
+model projectUsers {
+  userId        Int
+  projectId     Int
+  addedByUserId Int
+  user          User    @relation("MemberInProject", fields: [userId], references: [id], onDelete: Cascade)
+  addedByUser   User    @relation("UserAddedInProject", fields: [addedByUserId], references: [id], onDelete: Cascade)
+  project       project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@id([userId, projectId])
+}
+
+model priority {
+  id    Int     @id @default(autoincrement())
+  value Int
+  title String
+  note  String?
+  task  task[]
+}
+
+model task {
+  id          Int         @id @default(autoincrement())
+  title       String
+  create_at   DateTime    @default(now())
+  start_date  DateTime?
+  end_date    DateTime?
+  description String?
+  projectId   Int?
+  priorityId  Int?
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  project     project?    @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  priority    priority?   @relation(fields: [priorityId], references: [id], onDelete: SetNull)
+  comment     comment[]
+  taskUsers   taskUsers[]
+}
+
+model comment {
+  id      Int    @id @default(autoincrement())
+  comment String
+  taskId  Int
+  userId  Int
+  user    User   @relation(fields: [userId], references: [id])
+  task    task   @relation(fields: [taskId], references: [id])
+}
+
+model taskUsers {
+  userId Int
+  taskId Int
+  user   User @relation(fields: [userId], references: [id])
+  task   task @relation(fields: [taskId], references: [id])
+
+  @@id([userId, taskId])
+}

@@ -1,0 +1,8 @@
+{
+  "welcome": "مرحباً بك في تطبيقنا!",
+  "success": "تم بنجاح",
+  "error": "خطأ",
+  "errorResponse": "استجابة الخطأ",
+  "successResponse": "استجابة النجاح",
+  "task_created": "تم إنشاء المهمة بنجاح"
+}
